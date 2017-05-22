@@ -27,22 +27,34 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
     private ServerThread serverThread = null;
     private ClientThread clientThread = null;
 
+    // returned values : 0 -invalid and 1-ok
+    private int isPortInRange (String serverPort) {
+        String port = serverPort;
+        int serverPortNr = Integer.parseInt(port);
+        if (serverPortNr < 1 || serverPortNr > 65535)
+            return 0;
+        return 1;
+    }
+
     private ConnectButtonClickListener connectButtonClickListener = new ConnectButtonClickListener();
     private class ConnectButtonClickListener implements Button.OnClickListener {
 
         @Override
         public void onClick(View view) {
             String serverPort = port.getText().toString();
-            if (serverPort == null || serverPort.isEmpty() ) {
+            if (serverPort == null || serverPort.isEmpty()) {
                 Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] Server port should be filled!", Toast.LENGTH_SHORT).show();
+                return;
+            } else if (isPortInRange(serverPort) == 0) {
+                Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] Server port should be in range [1,65535]!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             serverThread = new ServerThread(Integer.parseInt(serverPort));
-            /*if (serverThread.getServerSocket() == null) {
+            if (serverThread.getServerSocket() == null) {
                 Log.e(Constants.TAG, "[MAIN ACTIVITY] Could not create server thread!");
                 return;
-            } */
+            }
             serverThread.start();
         }
     }
@@ -69,6 +81,9 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
             if (word == null || word.isEmpty()) {
                 Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] Parameter from client (anagram) should be filled", Toast.LENGTH_SHORT).show();
                 return;
+            } else if (word.contains("+")) {
+                Toast.makeText(getApplicationContext(), "[MAIN ACTIVITY] The word contains incorrect characters", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             allAnagramShow.setText(Constants.EMPTY_STRING);
@@ -83,17 +98,6 @@ public class PracticalTest02MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i(Constants.TAG, "[MAIN ACTIVITY] onCreate() callback method has been invoked");
         setContentView(R.layout.activity_practical_test02_main);
-
-        /*
-             private EditText port = null;
-    private Button startServerButton = null;
-
-    // client widgets
-    private EditText cuvantClient = null;
-    private Button getWord = null;
-    private EditText allAnagramShow = null;
-
-         */
 
         // server
         port = (EditText) findViewById(R.id.port);

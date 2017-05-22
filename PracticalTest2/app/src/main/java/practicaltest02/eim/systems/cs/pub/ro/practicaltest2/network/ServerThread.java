@@ -17,11 +17,18 @@ public class ServerThread extends Thread{
     private ServerSocket serverSocket = null;
 
     // word si lista de anagrame
-    private HashMap<String, ArrayList> data = null;
+    private HashMap<String, ArrayList<String>> data = null;
 
     public ServerThread(int port) {
         this.port = port;
-
+        try {
+            this.serverSocket = new ServerSocket(port);
+        } catch (IOException ioException) {
+            Log.e(Constants.TAG, "An exception has occurred: " + ioException.getMessage());
+            if (Constants.DEBUG) {
+                ioException.printStackTrace();
+            }
+        }
         this.data = new HashMap<>();
     }
 
@@ -46,20 +53,13 @@ public class ServerThread extends Thread{
         this.data.put(city, listAnagram);
     }
 
-    public synchronized HashMap<String, ArrayList> getData() {
+    public synchronized HashMap<String, ArrayList<String>> getData() {
         return data;
     }
 
     @Override
     public void run() {
-        try {
-            this.serverSocket = new ServerSocket(5000);
-        } catch (IOException ioException) {
-            Log.e(Constants.TAG, "An exception has occurred: " + ioException.getMessage());
-            if (Constants.DEBUG) {
-                ioException.printStackTrace();
-            }
-        }
+
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 Log.i(Constants.TAG, "[SERVER THREAD] Waiting for a client invocation...");

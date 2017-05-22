@@ -44,13 +44,14 @@ public class ClientThread extends Thread {
             printWriter.println(word);
             printWriter.flush();
 
+            final String newline = "\n";
             String allAnagram;
             while ((allAnagram = bufferedReader.readLine()) != null) {
                 final String finalAllAnagram = allAnagram;
                 allAnagramShow.post(new Runnable() {
                     @Override
                     public void run() {
-                        allAnagramShow.setText(finalAllAnagram);
+                        allAnagramShow.setText(allAnagramShow.getText().toString() + newline + finalAllAnagram);
                     }
                 });
             }

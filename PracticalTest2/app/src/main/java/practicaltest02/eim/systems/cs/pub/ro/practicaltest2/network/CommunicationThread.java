@@ -4,6 +4,7 @@ package practicaltest02.eim.systems.cs.pub.ro.practicaltest2.network;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -59,52 +64,64 @@ public class CommunicationThread extends Thread{
             }
 
             // date de primit de la server
-            HashMap<String, ArrayList> data = serverThread.getData();
+            HashMap<String, ArrayList<String>> data = serverThread.getData();
             ArrayList lista = null;
+            String dataAnagram = null;
 
             //cache
             if (data.containsKey(word)) {
                 Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the cache...");
                 lista = data.get(word);
+                dataAnagram = lista.toString();
             }
             // nu este in cache
             else {
                 Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the webservice...");
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpGet httpGet = new HttpGet(Constants.WEB_SERVICE_ADDRESS + word);
+                Log.e(Constants.TAG, "GET: " + Constants.WEB_SERVICE_ADDRESS + word);
 
                 // raspuns
+                String pageSourceCode= "";
                 ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                String pageSourceCode= httpClient.execute(httpGet, responseHandler);
+                pageSourceCode = httpClient.execute(httpGet, responseHandler);
                 if (pageSourceCode == null) {
                     Log.e(Constants.TAG, "[COMMUNICATION THREAD] Error getting the information from the webservice!");
                     return;
                 }
 
-                lista.add(0,pageSourceCode);
+                lista = new ArrayList();
+
+                // parcurgere json pentru extragere date
+                JSONObject obj_json = null;
+                obj_json = XML.toJSONObject(pageSourceCode);
+                JSONObject arrayOfString = obj_json.getJSONObject(Constants.ARRAY_OF_STRING);
+                String data_string = arrayOfString.getString("string") ;
+                String[] anagramArray = data_string.split(",|\\[|\\]");
+
+                for (String str : anagramArray)
+                    if (!str.isEmpty())
+                        lista.add(str);
+
                 serverThread.setData(word, lista);
+                Log.e(Constants.TAG, lista.toString());
 
-                // prelucare document primit
-                // TODO - acasa
-
-
-                if (lista == null) {
-                    Log.e(Constants.TAG, "[COMMUNICATION THREAD] List of anagrams is null!");
-                    return;
-                }
-
-                // TODO - change
-                String test = "TEST";
-                printWriter.println(pageSourceCode);
-                printWriter.flush();
+                dataAnagram = lista.toString();
             }
+            printWriter.println(dataAnagram);
+            printWriter.flush();
 
         } catch (IOException ioException) {
             Log.e(Constants.TAG, "[COMMUNICATION THREAD] An exception has occurred: " + ioException.getMessage());
             if (Constants.DEBUG) {
                 ioException.printStackTrace();
             }
-        }  finally {
+        } catch (JSONException jsonException) {
+            Log.e(Constants.TAG, "[COMMUNICATION THREAD] An exception has occurred: " + jsonException.getMessage());
+            if (Constants.DEBUG) {
+                jsonException.printStackTrace();
+            }
+        } finally {
             if (socket != null) {
                 try {
                     socket.close();

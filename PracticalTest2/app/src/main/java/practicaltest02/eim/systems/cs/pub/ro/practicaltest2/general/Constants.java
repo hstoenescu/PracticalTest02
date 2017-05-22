@@ -1,16 +1,12 @@
 package practicaltest02.eim.systems.cs.pub.ro.practicaltest2.general;
 
-/**
- * Created by student on 19.05.2017.
- */
-
 public interface Constants {
 
     final public static String TAG = "[PracticalTest02]";
 
     final public static boolean DEBUG = true;
 
-    final public static String WEB_SERVICE_ADDRESS = "https://http://services.aonaware.com/CountCheatService/CountCheatService.asmx/LetterSolutions?anagram=";
+    final public static String WEB_SERVICE_ADDRESS = "http://services.aonaware.com/CountCheatService/CountCheatService.asmx/LetterSolutions?anagram=";
 
     final public static String TEMPERATURE = "temperature";
     final public static String WIND_SPEED = "wind_speed";
@@ -27,6 +23,8 @@ public interface Constants {
     final public static String SEARCH_KEY = "wui.api_data =\n";
 
     final public static String CURRENT_OBSERVATION = "current_observation";
+
+    final public static String ARRAY_OF_STRING = "ArrayOfString";
 
 
 }
